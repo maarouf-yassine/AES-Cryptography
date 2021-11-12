@@ -4,29 +4,33 @@
     <head>
         <script src="js/main.js" async></script>
         <title>AES - Advanced Encryption Standard</title>
+        <script src="js/gui.js" async></script>
+        <link rel="stylesheet" type="text/css" href="css/styles.css">
     </head>
 
     <body>
-        <div style="width: 60%">
-            <p>AES takes a plain text input of 128 bits, grouped into 16 bytes of 8 bits.  Enter your 128 bits below in hexadecimal format.</p>
-            
-            <p>Plaintext (in hex): <br />
-            <input type="text" name="plainText" maxlength="32" size="32">
-            <br/>
-            
-            <p>AES takes a key input of 128, 192, or 256 bits. Enter your key of choice below in hexadecimal format.</p>
-            
-            <p>Key (in hex): <br />
-            <input type="text" name="key" maxlength="64" size="64">
-            <br/>
 
-            <p>These 16 bytes of the plaintext are then arranged into a 4 x 4 matrix.  From this matrix we will do the 10 rounds of the AES algorithm if the key has 128 bits (if the key has 192 bits, it's 12 rounds, and when the key has 256 bits, it's 14 rounds).  Each round has 4 steps, Byte Substitution, Row Shifting, Column Mixing, then adding the Key for that round.</p>
-            <p>
-                <button onclick="expandKey()">Perform Key Expansion</button>
-                <button onclick="allSteps()">Perform Complete Encryption</button>
-            </p>
+        <div class="container">
+            <h3>Enter Plaintext Matrix</h3>
+            <table id="plaintext-table" border=1>
+                
+            </table>
 
+            <h3>Enter Key Matrix</h3>
+            <label for="keySize">Choose key size:</label>
+            <select name="keySize" id="keySize">
+            <option value="128bits">128 bits</option>
+            <option value="192bits">192 bits</option>
+            <option value="256bits">256 bits</option>
+            </select>
+            
+            <table id="key-table" border=1>
+                
+            </table>
+
+            <button id="encrypt">Encrypt</button>
         </div>
+        
     </body>
 
 </html>
