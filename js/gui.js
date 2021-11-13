@@ -53,7 +53,7 @@ function createInputTable(tableElement,sizeOfKey) {
         //create table row 
         var tr = document.createElement('tr');
         var title = document.createTextNode('W'+(i+1));
-        var td = document.createElement('td');
+        var td = document.createElement('th');
         td.appendChild(title);
         tr.appendChild(td);
 
@@ -73,14 +73,16 @@ function createInputTable(tableElement,sizeOfKey) {
     }
 }
 
-function createOutputTable(resultMatrix) {
-    var container = document.getElementsByClassName('container')[0];
-    if ($('ciphertext-table') != null) {
-        var table = $('ciphertext-table');
+function createOutputTable(resultMatrix,header,id) {
+    var container = document.getElementsByClassName('container')[1];
+    if ($(id) != null) {
+        var table = $(id);
         while (table.lastChild) {
             table.removeChild(table.lastChild);
         }
         container.removeChild(table)
+    } else {
+        createH3(header);
     }
 
     var table = document.createElement('table');
@@ -93,7 +95,7 @@ function createOutputTable(resultMatrix) {
         var tr = document.createElement('tr');
 
         var title = document.createTextNode('W'+(i+1));
-        var td = document.createElement('td');
+        var td = document.createElement('th');
         td.appendChild(title);
         tr.appendChild(td);
         
@@ -202,6 +204,13 @@ function getArrayOfHexadecimals(arrayOfDecimals) {
 
 }
 
+function createH3(h3) {
+    var header = document.createElement('h3');
+    header.innerHTML = h3;
+    var parent = document.getElementsByClassName('container')[1];
+    parent.appendChild(header);
+}
+
 function encrypt() {
 
     let key = getArrayOfHexadecimals(getKey());
@@ -211,10 +220,11 @@ function encrypt() {
     Encrypt(block,key);
     let finalEncryption = convertBlockToHex(block);
     
-    alert("Plaintext = "+getPlaintext());
-    alert("Key = "+getKey());
-    alert("Expanded Key = "+key);
-    alert("Encryption = "+finalEncryption);
+    console.log("Plaintext = "+getPlaintext());
+    console.log("Key = "+getKey());
+    console.log("Expanded Key = "+key);
+    console.log("Encryption = "+finalEncryption);
 
+    createOutputTable(finalEncryption, 'Resulting Ciphertext Matrix:', 'ciphertext-table');
 
 }
