@@ -115,6 +115,7 @@ function createOutputTable(resultMatrix,header,id) {
 function getBinary4DigitNum (inp){
     //input string e.g. '1' & output string e.g. '0001'
 
+    if (inp=="0") return '0000';
     if (inp=="1") return '0001';
     else if (inp=="2") return '0010';
     else if (inp=="3") return '0011';
