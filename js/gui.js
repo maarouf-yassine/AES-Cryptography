@@ -125,12 +125,12 @@ function getBinary4DigitNum (inp){
     else if (inp=="7") return '0111';
     else if (inp=="8") return '1000';
     else if (inp=="9") return '1001';
-    else if (inp=="A") return '1010';
-    else if (inp=="B") return '1011';
-    else if (inp=="C") return '1100';
-    else if (inp=="D") return '1101';
-    else if (inp=="E") return '1110';
-    else if (inp=="F") return '1111';
+    else if (inp=="A" || inp=="a" ) return '1010';
+    else if (inp=="B" || inp=="b") return '1011';
+    else if (inp=="C" || inp=="c") return '1100';
+    else if (inp=="D" || inp=="d") return '1101';
+    else if (inp=="E" || inp=="e") return '1110';
+    else if (inp=="F"|| inp=="f") return '1111';
     else {
         alert("Your input plaintext/key should only contain characters 1,2,3,4,5,6,7,8,9,A,B,C,D,E, or F");
     }
