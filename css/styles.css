@@ -23,10 +23,15 @@ body {
     color: black;
     background-color: rgb(216, 216, 216);
     margin: 30px auto;
-}.container th {
+}
+.container th {
     padding: 5px;
     background-color: rgb(216, 216, 216);
-}.container td input {
+} 
+
+
+
+.container td input {
     padding: 5px;
     border: none;
     background-color: rgb(240, 240, 240);
@@ -34,6 +39,13 @@ body {
 .container #ciphertext-table td {
     padding: 5px;
     background-color: rgb(240, 240, 240);
+}
+
+.headersOfOutput {
+    padding: 5px;
+    /*background-color: rgb(216, 216, 216);*/
+    background-color:rgb(55, 161, 55);
+
 }
 
 h3 {
