@@ -236,20 +236,20 @@ function createH3(h3) {
 
 function encrypt() {
 
-    let key = getArrayOfHexadecimals(getKey());
-    let block = getArrayOfHexadecimals(getPlaintext());
+    //let key = getArrayOfHexadecimals(getKey());
+    //let block = getArrayOfHexadecimals(getPlaintext());
 
-    ExpandKey(key);
-    Encrypt(block,key);
-    let finalEncryption = convertBlockToHex(block);
+    //ExpandKey(key);
+    //Encrypt(block,key);
+    //let finalEncryption = convertBlockToHex(block);
     
-    console.log("Plaintext = "+getPlaintext());
-    console.log("Key = "+getKey());
-    console.log("Expanded Key = "+key);
-    console.log("Encryption = "+finalEncryption);
+    //console.log("Plaintext = "+getPlaintext());
+    //console.log("Key = "+getKey());
+    //console.log("Expanded Key = "+key);
+    //console.log("Encryption = "+finalEncryption);
 
-    createOutputTable(finalEncryption, 'Resulting Ciphertext Matrix:', 'ciphertext-table');
-    alert(finalEncryption);
+    //createOutputTable(finalEncryption, 'Resulting Ciphertext Matrix:', 'ciphertext-table');
+    //alert(finalEncryption);
 }
 
 /*

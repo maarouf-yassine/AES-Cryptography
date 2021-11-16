@@ -13,17 +13,29 @@ let Sbox_Inv = new Array(256);
 let ShiftRowTab_Inv = new Array(16);
 let xtime = new Array(256);
 
+//for decryption
+var mul_9  = new Array(256);
+var mul_11 = new Array(256);
+var mul_13 = new Array(256);
+var mul_14 = new Array(256);
+
 function Init(){
     for (var i = 0; i < 256; i++)
-    Sbox_Inv[Sbox[i]] = i;
+    Sbox_Inv[Sbox[i]] = i; //prepare S_inv box
 
     for (var i = 0; i < 16; i++)
-    ShiftRowTab_Inv[ShiftRowTab[i]] = i;
-
+    ShiftRowTab_Inv[ShiftRowTab[i]] = i; 
     
     for (var i = 0; i < 128; i++) {
         xtime[i] = i << 1;
         xtime[128 + i] = (i << 1) ^ 0x1b;
+    }
+
+    for (let x=0; x<256; x++) {
+        mul_9[x] = galois_multiply(x,  9);
+        mul_11[x] = galois_multiply(x,  11);
+        mul_13[x] = galois_multiply(x,  13);
+        mul_14[x] = galois_multiply(x,  14);
     }
 }
 
@@ -81,19 +93,66 @@ function Encrypt(block, key) {
     AddRoundKey(block, key.slice(i, l));
 }
 
-function Decrypt(block, key) {
+function Decrypt(block, key) { //order from an online source
     var l = key.length;
-    AddRoundKey(block, key.slice(l - 16, l));
+    AddRoundKey(block, key.slice(l - 16, l)); //XOR ciphertext with last four words of key
+    for (var i = l - 32; i >= 16; i -= 16) { //take each 4 words at a time
+        ShiftRows(block, ShiftRowTab_Inv);
+        SubBytes(block, Sbox_Inv);
+        AddRoundKey(block, key.slice(i, i + 16));
+        MixColumns_Inv(block);
+        
+    }
     ShiftRows(block, ShiftRowTab_Inv);
     SubBytes(block, Sbox_Inv);
-    for (var i = l - 32; i >= 16; i -= 16) {
+    AddRoundKey(block, key.slice(0, 16));
+    return block;
+}
+
+/*function Decrypt(block, key) { //original decrypt function
+    var l = key.length;
+    AddRoundKey(block, key.slice(l - 16, l)); //XOR ciphertext with last four words of key
+    SubBytes(block, Sbox_Inv);
+    ShiftRows(block, ShiftRowTab_Inv);
+    SubBytes(block, Sbox_Inv);
+    for (var i = l - 32; i >= 16; i -= 16) { //take each 4 words at a time
         AddRoundKey(block, key.slice(i, i + 16));
         MixColumns_Inv(block);
         ShiftRows(block, ShiftRowTab_Inv);
         SubBytes(block, Sbox_Inv);
     }
     AddRoundKey(block, key.slice(0, 16));
-}
+    return block;
+}*/
+
+
+/*function Decrypt(block, key) { //order of steps based on slides
+    alert("Just infunction = "+ block.length);
+    var l = key.length;
+    //alert("length = "+l);
+    //alert("key = "+ key);
+    let temp = key.slice(l - 16, l);
+    //alert("slice="+temp);
+    AddRoundKey(block, key.slice(l - 16, l)); //XOR ciphertext with last four words of key, i.e. last 16 bytes
+    SubBytes(block, Sbox_Inv);
+    ShiftRows(block, ShiftRowTab_Inv);
+    //alert("Just before mix cols = "+ block.length);
+    MixColumns_Inv(block);
+    for (var i = l - 32; i >= 16; i -= 16) { //take each 4 words at a time
+        AddRoundKey(block, key.slice(i, i + 16));
+        SubBytes(block, Sbox_Inv);
+        ShiftRows(block, ShiftRowTab_Inv);
+        //alert("Just before mix cols in loop = "+ block.length);
+        MixColumns_Inv(block);
+        
+    }
+    AddRoundKey(block, key.slice(0, 16));
+    alert("Will return before converting: "+block);
+    alert("Will return after converting: "+convertBlockToHex(block));
+    return block;
+}*/
+
+
 
 function SubBytes(state, sbox) {
     for (var i = 0; i < 16; i++)
@@ -142,14 +201,48 @@ function MixColumns(state){
     }
 }*/
 
+function galois_multiply(a,b) {
+    let p = 0;
+    while (b) {
+        if (b & 1) {
+            p = p ^ a;
+        }
+        a = a << 1;
+        if ( a & 0x100 ) {
+            a = a ^ 0x1b;
+        }
+        b = b >> 1;
+    }
+    let result = p & 0xff;
+    return result;
+
+}
+
 function MixColumns_Inv(state) {
+
+    for (let col=0; col<16; col+=4) {
+        let v0 = block[col];
+        let v1 = block[col+1];
+        let v2 = block[col+2];
+        let v3 = block[col+3];
+
+        block[col] = mul_14[v0] ^ mul_9[v3] ^ mul_13[v2] ^ mul_11[v1];
+        block[col+1] = mul_14[v1] ^ mul_9[v0] ^ mul_13[v3] ^ mul_11[v2];
+        block[col+2] = mul_14[v2] ^ mul_9[v1] ^ mul_13[v0] ^ mul_11[v3];
+        block[col+3] = mul_14[v3] ^ mul_9[v2] ^ mul_13[v1] ^ mul_11[v0];
+    }
+}
+
+
+
+/*function MixColumns_Inv(state) {
     for (var i = 0; i < 16; i += 4) {
-        var s0 = state[i + 0],
-            s1 = state[i + 1];
-        var s2 = state[i + 2],
-            s3 = state[i + 3];
-        var h = s0 ^ s1 ^ s2 ^ s3;
-        var xh = xtime[h];
+        var s0 = state[i + 0], //first byte of state 
+            s1 = state[i + 1]; //2nd byte
+        var s2 = state[i + 2], //3rd byte
+            s3 = state[i + 3]; //4th byte
+        var h = s0 ^ s1 ^ s2 ^ s3; //XOR bytes 
+        var xh = xtime[h]; 
         var h1 = xtime[xtime[xh ^ s0 ^ s2]] ^ h;
         var h2 = xtime[xtime[xh ^ s1 ^ s3]] ^ h;
         state[i + 0] ^= h1 ^ xtime[s0 ^ s1];
@@ -157,7 +250,8 @@ function MixColumns_Inv(state) {
         state[i + 2] ^= h1 ^ xtime[s2 ^ s3];
         state[i + 3] ^= h2 ^ xtime[s3 ^ s0];
     }
-}
+}*/
+
 function decimalToHexString(num){
     return num.toString(16)
 }
@@ -172,17 +266,29 @@ function convertBlockToHex(block){
     return test
 }
 
-/*
+
 //let key = [0x54, 0x68, 0x61, 0x74, 0x73, 0x20, 0x6D, 0x79, 0x20, 0x4B,0x75, 0x6E,0x67, 0x20, 0x46, 0x75]
 //let block = [0x54, 0x77, 0x6F,0x20, 0x4F,0x6E,0x65, 0x20, 0x4E,0x69, 0x6E,0x65,0x20,0x54,0x77,0x6F]
 
+//let key = [0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11]
+//let block = [0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11]
+
+Init();
+
+alert("hi");
+alert(Sbox_Inv);
 let key = [0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11]
-let block = [0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11]
+let block = [0xe5,0x6e,0x26,0xf5,0x60,0x8b,0x8d,0x26,0x8f,0x25,0x56,0xe1,0x98,0xa0,0xe0,0x1b,0x00,0xb2,0xae,0xf2,0x11,0xee,0x2f,0x50,0x8b,0x34,0x11,0x72,0xe8,0x1a,0x61,0xd3]
 
+alert("Key: "+key);
+alert("Encrypted block: "+block);
 
-ExpandKey(key)
-Encrypt(block,key)
-console.log(convertBlockToHex(block))
-alert(key);
-alert(block);
-alert(convertBlockToHex(block));*/
+ExpandKey(key);
+alert("Expanded Key: "+key);
+//Encrypt(block,key)
+let result = Decrypt (block,key)
+result = convertBlockToHex(result) 
+//console.log(convertBlockToHex(block))
+
+alert("Result: "+result);
+Done();
