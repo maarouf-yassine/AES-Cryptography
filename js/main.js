@@ -75,37 +75,73 @@ function ExpandKey(key) {
 
 function Encrypt(block, key) {
     var l = key.length;
+    var roundNumber=0;
     //Round 0
     AddRoundKey(block, key.slice(0, 16));
-    //    console.log("AddRoundKey:"+convertBlockToHex(block))
+    //console.log("AddRoundKey:"+convertBlockToHex(block))
+    createRoundTable(convertBlockToHex(block),"Add Round Key",'add-key-table'+roundNumber,''+roundNumber)
     for (var i = 16; i < l - 16; i += 16) {
+        roundNumber ++;
         SubBytes(block, Sbox);
-    //    console.log("S-box:"+convertBlockToHex(block))
+        //console.log("S-box:"+convertBlockToHex(block))
+        createRoundTable(convertBlockToHex(block),"Sub Bytes",'sub-bytes-table'+roundNumber,''+roundNumber)
+        
         ShiftRows(block, ShiftRowTab);
-    //    console.log("Shift-Rows:"+convertBlockToHex(block))
+        //console.log("Shift-Rows:"+convertBlockToHex(block))
+        createRoundTable(convertBlockToHex(block),"Shift Rows",'shift-rows-table'+roundNumber,''+roundNumber)
+        
         MixColumns(block);
-    //    console.log("Mix-Columns:"+convertBlockToHex(block))
+        //console.log("Mix-Columns:"+convertBlockToHex(block))
+        createRoundTable(convertBlockToHex(block),"Mix Columns",'mix-columns-table'+roundNumber,''+roundNumber)
+        
         AddRoundKey(block, key.slice(i, i + 16));
-    //    console.log("AddRoundKey:"+convertBlockToHex(block))
+        //console.log("AddRoundKey:"+convertBlockToHex(block))
+        createRoundTable(convertBlockToHex(block),"Add Round Key",'add-key-table'+roundNumber,''+roundNumber)
+
     }
+    roundNumber++;
     SubBytes(block, Sbox);
+    createRoundTable(convertBlockToHex(block),"Sub Bytes",'sub-bytes-table'+roundNumber,''+roundNumber)
+        
     ShiftRows(block, ShiftRowTab);
+    createRoundTable(convertBlockToHex(block),"Shift Rows",'shift-rows-table'+roundNumber,''+roundNumber)
+        
     AddRoundKey(block, key.slice(i, l));
+    createRoundTable(convertBlockToHex(block),"Add Round Key",'add-key-table'+roundNumber,''+roundNumber)
 }
 
 function Decrypt(block, key) { //order from an online source
     var l = key.length;
+    var roundNumber=0;
+    
     AddRoundKey(block, key.slice(l - 16, l)); //XOR ciphertext with last four words of key
+    createRoundTable(convertBlockToHex(block),"Add Round Key",'add-key-table'+roundNumber,''+roundNumber)
+    
     for (var i = l - 32; i >= 16; i -= 16) { //take each 4 words at a time
+        roundNumber++;
         ShiftRows(block, ShiftRowTab_Inv);
+        createRoundTable(convertBlockToHex(block),"Inverse Shift Rows",'shift-rows-table'+roundNumber,''+roundNumber)
+    
         SubBytes(block, Sbox_Inv);
+        createRoundTable(convertBlockToHex(block),"Inverse Sub Bytes",'sub-bytes-table'+roundNumber,''+roundNumber)
+     
         AddRoundKey(block, key.slice(i, i + 16));
+        createRoundTable(convertBlockToHex(block),"Add Round Key",'add-key-table'+roundNumber,''+roundNumber)
+    
         MixColumns_Inv(block);
+        createRoundTable(convertBlockToHex(block),"Inverse Mix Columns",'mix-columns-table'+roundNumber,''+roundNumber)
         
     }
+    roundNumber++;
     ShiftRows(block, ShiftRowTab_Inv);
+    createRoundTable(convertBlockToHex(block),"Inverse Shift Rows",'shift-rows-table'+roundNumber,''+roundNumber)
+    
     SubBytes(block, Sbox_Inv);
+    createRoundTable(convertBlockToHex(block),"Inverse Sub Bytes",'sub-bytes-table'+roundNumber,''+roundNumber)
+     
     AddRoundKey(block, key.slice(0, 16));
+    createRoundTable(convertBlockToHex(block),"Add Round Key",'add-key-table'+roundNumber,''+roundNumber)
+    
     return block;
 }
 

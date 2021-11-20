@@ -83,7 +83,7 @@ function createOutputTable(resultMatrix,header,id) {
         }
         container.removeChild(table)
     } else {
-        createH3(header);
+        createH3(header,1);
     }
 
     var table = document.createElement('table');
@@ -135,6 +135,66 @@ function createOutputTable(resultMatrix,header,id) {
     container.appendChild(table);
     
 
+}
+
+function createRoundTable(resultMatrix,header,id, roundNumber){
+    var container = document.getElementsByClassName('container')[0]; //i.e. container of the inputs
+    
+    if ($(id) != null) {
+        var table = $(id);
+        while (table.lastChild) {
+            table.removeChild(table.lastChild);
+        }
+        container.removeChild(table)
+    } else {
+        createH3("Round "+roundNumber+":"+header,0);
+    }
+    var table = document.createElement('table');
+    table.setAttribute('border', '1');
+    table.setAttribute('id', id)
+
+    var headers = document.createElement('tr');
+    headers.classList.add('headersOfOutput');
+    
+    for (let i=0; i<4; i++) { //for loop to form W1 W2 W3 W4
+        var ti = document.createTextNode('W'+(i+1));
+        var wi = document.createElement('td');
+        wi.appendChild(ti);
+        headers.appendChild(wi);
+    }
+    table.appendChild(headers);
+
+
+    for (let i=0; i<4; i++) { //for loop to fill the table
+        //the output presented as columns W1, W2, W3, W4:
+        // W1 W2 W3 W4
+        // 0  4  8  12
+        // 1  5  9  13
+        // 2  6  10 14
+        // 3  7  11 15 
+        
+        var tr = document.createElement('tr');
+        
+        var td1 = document.createElement('td');
+        td1.innerHTML = resultMatrix[i];
+        tr.appendChild(td1);
+
+        var td2 = document.createElement('td');
+        td2.innerHTML = resultMatrix[i+4];
+        tr.appendChild(td2);
+
+        var td3 = document.createElement('td');
+        td3.innerHTML = resultMatrix[i+8];
+        tr.appendChild(td3);
+
+        var td4 = document.createElement('td');
+        td4.innerHTML = resultMatrix[i+12];
+        tr.appendChild(td4);
+
+        table.appendChild(tr);
+
+    }
+    container.appendChild(table);
 }
 
 function getBinary4DigitNum (inp){
@@ -231,10 +291,12 @@ function getArrayOfHexadecimals(arrayOfDecimals) {
 
 }
 
-function createH3(h3) {
+function createH3(h3,containerNumber) {
+    //containerNumber is 1 in case we want to create header in **output** side(right)
+    //containerNumber is 0 in case we want to create header in **input** side (left)
     var header = document.createElement('h3');
     header.innerHTML = h3;
-    var parent = document.getElementsByClassName('container')[1];
+    var parent = document.getElementsByClassName('container')[containerNumber];
     parent.appendChild(header);
 }
 
