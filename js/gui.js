@@ -145,10 +145,12 @@ function createRoundTable(resultMatrix,header,id, roundNumber){
         while (table.lastChild) {
             table.removeChild(table.lastChild);
         }
-        container.removeChild(table)
-    } else {
-        createH3("Round "+roundNumber+":"+header,0);
-    }
+        container.removeChild(table);
+        headerr = document.getElementById(roundNumber);
+        container.removeChild(headerr);
+    } 
+    createH3("Round "+roundNumber+":"+header,0,roundNumber);
+
     var table = document.createElement('table');
     table.setAttribute('border', '1');
     table.setAttribute('id', id)
@@ -291,10 +293,11 @@ function getArrayOfHexadecimals(arrayOfDecimals) {
 
 }
 
-function createH3(h3,containerNumber) {
+function createH3(h3,containerNumber,id) {
     //containerNumber is 1 in case we want to create header in **output** side(right)
     //containerNumber is 0 in case we want to create header in **input** side (left)
     var header = document.createElement('h3');
+    header.id = id;
     header.innerHTML = h3;
     var parent = document.getElementsByClassName('container')[containerNumber];
     parent.appendChild(header);
@@ -332,7 +335,7 @@ function decrypt() {
     let result = convertBlockToHex(Decrypt(block,key));
     
     createOutputTable(result, 'Resulting Matrix:', 'ciphertext-table');
-    Done();
+    // Done();
     
     //ExpandKey(key);
     //alert("Expanded Key: "+key);
